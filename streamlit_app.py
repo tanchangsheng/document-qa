@@ -12,12 +12,16 @@ st.write(
 # Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
 # via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
 openai_api_key = st.text_input("OpenAI API Key", type="password")
-if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
-else:
+base_url = st.text_input("Base URL")
+model_name = st.text_input("Model")
+
+if openai_api_key and base_url and model_name:
 
     # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+    client = OpenAI(
+        api_key=openai_api_key,
+        base_url=base_url,
+    )
 
     # Let the user upload a file via `st.file_uploader`.
     uploaded_file = st.file_uploader(
@@ -44,10 +48,12 @@ else:
 
         # Generate an answer using the OpenAI API.
         stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=model_name,
             messages=messages,
             stream=True,
         )
 
         # Stream the response to the app using `st.write_stream`.
         st.write_stream(stream)
+else:
+    st.info("Please add fill in the form to continue.", icon="🗝️")
